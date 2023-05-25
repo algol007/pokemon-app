@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import pokemonService from '../../../services/pokemonService';
-import { PokemonList } from '../entity';
+import { Pokemon } from '../entity';
 import { PokemonCard } from '../components';
+import PokemonBanner from '../components/PokemonBanner';
+import { useNavigate } from 'react-router-dom';
 
 function PokemonListPage() {
-  const [pokemons, setPokemons] = useState<PokemonList[]>([]);
+  const navigate = useNavigate();
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
   const [params, setParams] = useState({
     limit: 20,
@@ -25,14 +28,24 @@ function PokemonListPage() {
   }, []);
 
   return (
-    <div className=''>
-      {pokemons &&
-        pokemons.map((data, idx) => (
-          <div key={idx} className='p-2'>
-            <PokemonCard pokemon={data} index={params.offset + idx + 1} />
-          </div>
-        ))}
-    </div>
+    <Fragment>
+      <div className='p-4 mb-4'>
+        <h2 className='text-xl mb-2'>Destaque</h2>
+        <PokemonBanner pokemon={pokemons[0]} isDetail={true} />
+      </div>
+
+      <div>
+        <h2 className='text-xl px-4'>Pokemons</h2>
+        <div className='flex flex-wrap px-2'>
+          {pokemons &&
+            pokemons.map((data, idx) => (
+              <div key={idx} className='p-2 w-1/2'>
+                <PokemonCard pokemon={data} index={params.offset + idx + 1} />
+              </div>
+            ))}
+        </div>
+      </div>
+    </Fragment>
   );
 }
 

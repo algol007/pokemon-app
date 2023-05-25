@@ -1,13 +1,19 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { SplashScreenPage } from './modules/SplashScreen';
-import { PokemonListPage } from './modules/Pokemon';
+import {
+  PokemonListPage,
+  PokemonDetailPage,
+  PokemonFavoritePage,
+} from './modules/Pokemon';
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<SplashScreenPage />} />
-        <Route path='/pokemon-list' element={<PokemonListPage />} />
+        <Route path='/pokemons' element={<PokemonListPage />} />
+        <Route path='/pokemon/favorites' element={<PokemonFavoritePage />} />
+        <Route path='/pokemon/:id' element={<PokemonDetailPage />} />
       </Routes>
     </BrowserRouter>
   );

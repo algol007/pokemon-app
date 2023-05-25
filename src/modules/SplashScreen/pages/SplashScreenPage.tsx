@@ -7,7 +7,7 @@ function SplashScreenPage() {
 
   useEffect(() => {
     setTimeout(() => {
-      navigate('/pokemon-list');
+      navigate('/pokemons');
     }, 3000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
