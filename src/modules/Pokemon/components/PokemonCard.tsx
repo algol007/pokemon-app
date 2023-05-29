@@ -4,9 +4,16 @@ import { Pokemon } from '../entity';
 interface PokemonCardProps {
   pokemon: Pokemon;
   index: number;
+  onFavorite: (data: any) => void;
+  isFavorite?: boolean;
 }
 
-function PokemonCard({ pokemon, index }: PokemonCardProps) {
+function PokemonCard({
+  pokemon,
+  index,
+  onFavorite,
+  isFavorite = false,
+}: PokemonCardProps) {
   const navigate = useNavigate();
 
   return (
@@ -24,13 +31,15 @@ function PokemonCard({ pokemon, index }: PokemonCardProps) {
       <div className='flex justify-center'>
         <div className='flex px-4 py-1 rounded-full gap-6 bg-secondary'>
           <span
-            className='material-symbols-outlined text-white'
-            onClick={() => navigate('/pokemon/favorite')}
+            className={`material-symbols-outlined text-white cursor-pointer ${
+              isFavorite && 'text-red-500'
+            }`}
+            onClick={onFavorite}
           >
             favorite
           </span>
           <span
-            className='material-symbols-outlined text-white'
+            className='material-symbols-outlined text-white cursor-pointer'
             onClick={() => navigate(`/pokemon/${pokemon.name}`)}
           >
             info

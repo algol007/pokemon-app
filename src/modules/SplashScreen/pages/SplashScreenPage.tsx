@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import PokemonImage from '../../../assets/pokemon.svg';
+import PokemonImage from '@/assets/pokemon.svg';
 import { useNavigate } from 'react-router-dom';
 
 function SplashScreenPage() {
