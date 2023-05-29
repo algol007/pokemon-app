@@ -11,12 +11,18 @@ import {
   removeFavoritePokemon,
 } from '@/redux/reducers/pokemonReducer';
 
+type Pagination = {
+  limit: number;
+  offset: number;
+};
+
 function PokemonListPage() {
   const dispatch = useDispatch();
-  const favorite = useSelector((state: RootState) => state.pokemon);
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const { favoritePokemons } = useSelector((state: RootState) => state.pokemon);
 
-  const [params, setParams] = useState({
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [count, setCount] = useState<number>(0);
+  const [params, setParams] = useState<Pagination>({
     limit: 20,
     offset: 0,
   });
@@ -24,13 +30,12 @@ function PokemonListPage() {
   const fetchAllPokemons = useCallback(() => {
     return pokemonService.getAllPokemons(params).then((res) => {
       setPokemons(res.results);
-      console.log(res.results[0].url.split('/')[6]);
+      setCount(res.count);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [params]);
 
-  const handleFavoriteClick = (data: any) => {
-    if (favorite.favoritePokemons.includes(data)) {
+  const handleFavoriteClick = (data: Pokemon) => {
+    if (favoritePokemons.includes(data)) {
       dispatch(removeFavoritePokemon(data));
       return;
     }
@@ -41,7 +46,7 @@ function PokemonListPage() {
   useEffect(() => {
     fetchAllPokemons();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [params]);
 
   return (
     <DefaultLayout>
@@ -54,7 +59,7 @@ function PokemonListPage() {
             onFavorite={() => handleFavoriteClick(pokemons[0])}
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
-            isFavorite={favorite.favoritePokemons.find((poke) => {
+            isFavorite={favoritePokemons.find((poke) => {
               return poke.name === pokemons[0]?.name ? true : false;
             })}
             index={Number(pokemons[0]?.url.split('/')[6])}
@@ -73,13 +78,28 @@ function PokemonListPage() {
                     onFavorite={() => handleFavoriteClick(data)}
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
-                    isFavorite={favorite.favoritePokemons.find((poke) => {
-                      return poke.name === data.name ? true : false;
+                    isFavorite={favoritePokemons.find((data) => {
+                      return data.name === pokemons[idx]?.name ? true : false;
                     })}
                   />
                 </div>
               ))}
           </div>
+          {params.limit < count && (
+            <div
+              className='text-center mb-24 mt-4'
+              onClick={() =>
+                setParams({
+                  ...params,
+                  limit: params.limit + 20,
+                })
+              }
+            >
+              <button className='bg-primary text-white px-6 py-2 rounded-full'>
+                Load More
+              </button>
+            </div>
+          )}
         </div>
       </Fragment>
     </DefaultLayout>

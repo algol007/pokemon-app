@@ -31,8 +31,8 @@ function PokemonCard({
       <div className='flex justify-center'>
         <div className='flex px-4 py-1 rounded-full gap-6 bg-secondary'>
           <span
-            className={`material-symbols-outlined text-white cursor-pointer ${
-              isFavorite && 'text-red-500'
+            className={`material-symbols-outlined cursor-pointer ${
+              isFavorite ? 'text-red-500' : 'text-white'
             }`}
             onClick={onFavorite}
           >

@@ -12,4 +12,5 @@ export interface Pokemon {
   name: string;
   url: string;
   stats?: PokemonStats[];
+  location_area_encounters?: string;
 }

@@ -14,11 +14,9 @@ export const pokemon = createSlice({
   initialState,
   reducers: {
     addFavoritePokemon: (state, action) => {
-      console.log('first')
       state.favoritePokemons = [...state.favoritePokemons, action.payload]
     },
     removeFavoritePokemon: (state, action) => {
-      console.log('sec')
       const newState = state.favoritePokemons.filter((data: Pokemon) => data.name !== action.payload.name)
       state.favoritePokemons = newState
     },
