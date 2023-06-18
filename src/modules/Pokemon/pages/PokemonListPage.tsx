@@ -2,7 +2,6 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import pokemonService from '@/services/pokemonService';
 import { Pokemon } from '../entity';
 import { PokemonCard } from '../components';
-import PokemonBanner from '../components/PokemonBanner';
 import { DefaultLayout } from '@/layouts';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
@@ -10,6 +9,8 @@ import {
   addFavoritePokemon,
   removeFavoritePokemon,
 } from '@/redux/reducers/pokemonReducer';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { toast } from 'react-toastify';
 
 type Pagination = {
   limit: number;
@@ -21,18 +22,68 @@ function PokemonListPage() {
   const { favoritePokemons } = useSelector((state: RootState) => state.pokemon);
 
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [count, setCount] = useState<number>(0);
+  const [filterBy, setFilterBy] = useState<string>('pokemon');
+  const [isFilter, setIsFilter] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [keyword, setKeyword] = useState<string>('');
   const [params, setParams] = useState<Pagination>({
     limit: 20,
     offset: 0,
   });
 
   const fetchAllPokemons = useCallback(() => {
-    return pokemonService.getAllPokemons(params).then((res) => {
-      setPokemons(res.results);
-      setCount(res.count);
-    });
+    setIsLoading(true);
+    return pokemonService
+      .getAllPokemons(params)
+      .then((res) => {
+        setPokemons(res.results);
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          setPokemons([]);
+        }
+        toast.error(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [params]);
+
+  const fetchAllPokemonsByFilter = useCallback(() => {
+    return pokemonService
+      .getPokemonFilter(filterBy, keyword)
+      .then((res) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        setPokemons(res.pokemon);
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          setPokemons([]);
+        }
+        toast.error(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [filterBy, keyword]);
+
+  const searchPokemon = useCallback(() => {
+    return pokemonService
+      .getPokemonById(keyword)
+      .then((res) => {
+        setPokemons([res]);
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          setPokemons([]);
+        }
+        toast.error(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [keyword]);
 
   const handleFavoriteClick = (data: Pokemon) => {
     if (favoritePokemons.includes(data)) {
@@ -44,62 +95,150 @@ function PokemonListPage() {
   };
 
   useEffect(() => {
-    fetchAllPokemons();
+    if (keyword === '' && filterBy === 'pokemon') {
+      fetchAllPokemons();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  }, [params, keyword, filterBy]);
+
+  useEffect(() => {
+    const fetchPokemon = setTimeout(() => {
+      if (keyword && filterBy === 'pokemon') {
+        searchPokemon();
+      }
+      if (keyword && filterBy !== 'pokemon') {
+        fetchAllPokemonsByFilter();
+      }
+    }, 2000);
+
+    return () => {
+      clearTimeout(fetchPokemon);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, filterBy]);
 
   return (
     <DefaultLayout>
       <Fragment>
         <div className='p-4 mb-4'>
-          <h2 className='text-xl mb-2'>Destaque</h2>
-          <PokemonBanner
-            pokemon={pokemons[0]}
-            isDetail={true}
-            onFavorite={() => handleFavoriteClick(pokemons[0])}
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
-            isFavorite={favoritePokemons.find((poke) => {
-              return poke.name === pokemons[0]?.name ? true : false;
-            })}
-            index={Number(pokemons[0]?.url.split('/')[6])}
-          />
+          <div className='flex gap-2 w-full'>
+            <div className='w-full'>
+              <input
+                type='text'
+                placeholder='Search pokemon'
+                className='border-2 border-primary rounded w-full py-2 px-4 h-10'
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+            </div>
+            <div className='flex items-center'>
+              <button
+                className='bg-primary w-10 h-10 flex justify-center items-center rounded'
+                onClick={() => setIsFilter(!isFilter)}
+              >
+                <span className='material-symbols-outlined text-white'>
+                  filter_list
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div
+            className={`flex items-center mt-4 gap-4 justify-center ${
+              !isFilter && 'hidden'
+            }`}
+          >
+            <div>
+              <input
+                onChange={(e) => setFilterBy(e.target.value)}
+                value='pokemon'
+                id='pokemon'
+                type='radio'
+                className='mr-2 accent-primary'
+                name='filterBy'
+                checked={filterBy === 'pokemon'}
+              />
+              <label htmlFor='pokemon'>None</label>
+            </div>
+            <div>
+              <input
+                onChange={(e) => setFilterBy(e.target.value)}
+                value='ability'
+                id='ability'
+                type='radio'
+                className='mr-2 accent-primary'
+                name='filterBy'
+                checked={filterBy === 'ability'}
+              />
+              <label htmlFor='ability'>Abilities</label>
+            </div>
+            <div>
+              <input
+                onChange={(e) => setFilterBy(e.target.value)}
+                value='type'
+                id='type'
+                type='radio'
+                className='mr-2 accent-primary'
+                name='filterBy'
+                checked={filterBy === 'type'}
+              />
+              <label htmlFor='type'>Types</label>
+            </div>
+          </div>
         </div>
 
         <div>
           <h2 className='text-xl px-4'>Pokemons</h2>
-          <div className='flex flex-wrap px-2'>
-            {pokemons &&
-              pokemons.map((data, idx) => (
-                <div key={idx} className='p-2 w-1/2'>
-                  <PokemonCard
-                    pokemon={data}
-                    index={Number(data.url.split('/')[6])}
-                    onFavorite={() => handleFavoriteClick(data)}
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-ignore
-                    isFavorite={favoritePokemons.find((data) => {
-                      return data.name === pokemons[idx]?.name ? true : false;
-                    })}
-                  />
-                </div>
-              ))}
-          </div>
-          {params.limit < count && (
-            <div
-              className='text-center mb-24 mt-4'
-              onClick={() =>
+
+          {
+            <InfiniteScroll
+              dataLength={pokemons.length}
+              next={() => {
                 setParams({
                   ...params,
                   limit: params.limit + 20,
-                })
+                });
+              }}
+              hasMore={true}
+              loader={
+                isLoading && (
+                  <div className='text-center w-full text-sm mt-10 text-gray-400'>
+                    Loading...
+                  </div>
+                )
               }
             >
-              <button className='bg-primary text-white px-6 py-2 rounded-full'>
-                Load More
-              </button>
-            </div>
-          )}
+              <div className='flex flex-wrap px-2'>
+                {pokemons.length > 0 ? (
+                  pokemons.map((data, idx) => (
+                    <div key={idx} className='p-2 w-1/2'>
+                      <PokemonCard
+                        pokemon={data}
+                        index={
+                          data.id ||
+                          Number(data?.url?.split('/')[6]) ||
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          //@ts-ignore
+                          Number(data?.pokemon?.url?.split('/')[6])
+                        }
+                        onFavorite={() => handleFavoriteClick(data)}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        //@ts-ignore
+                        isFavorite={favoritePokemons.find((data) => {
+                          return data.name === pokemons[idx]?.name
+                            ? true
+                            : false;
+                        })}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className='text-center w-full text-sm mt-10 text-gray-400'>
+                    No Pokemons Found.
+                  </div>
+                )}
+              </div>
+            </InfiniteScroll>
+          }
         </div>
       </Fragment>
     </DefaultLayout>

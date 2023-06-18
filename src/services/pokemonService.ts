@@ -26,6 +26,9 @@ const pokemonService = {
   getPokemonById(id: string | undefined): Promise<GetPokemonDetailResult> {
     return httpClient.get(`/pokemon/${id}`);
   },
+  getPokemonFilter(filter: string, name: string | undefined): Promise<GetPokemonListResult> {
+    return httpClient.get(`/${filter}/${name}`);
+  },
 }
 
 export default pokemonService;

@@ -30,9 +30,18 @@ function PokemonBanner({
       <div className='w-2/3 text-white border-l pl-4'>
         <div className='mb-2'>
           <div className='capitalize font-bold mb-2'>{pokemon?.name}</div>
-          <p className='text-xs'>
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eaque,
-            deleniti quas ratione nihil accusamus...
+          <p className='text-xs my-4 flex items-center'>
+            <div className='mr-2'>Abilities:</div>
+            <div className='flex flex-wrap'>
+              {pokemon?.abilities?.map((data, idx) => (
+                <span className='mr-1 text-orange' key={idx}>
+                  {data.ability?.name}
+                  {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                  {/* @ts-ignore */}
+                  {idx !== pokemon?.abilities?.length - 1 && ','}
+                </span>
+              ))}
+            </div>
           </p>
         </div>
         <div className='flex justify-end gap-2 items-center'>

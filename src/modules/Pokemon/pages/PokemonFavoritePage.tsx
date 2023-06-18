@@ -1,9 +1,9 @@
-import PokemonBanner from '../components/PokemonBanner';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { removeFavoritePokemon } from '@/redux/reducers/pokemonReducer';
 import { DefaultLayout } from '@/layouts';
 import { Pokemon } from '../entity';
+import { PokemonCard } from '../components';
 
 function PokemonFavoritePage() {
   const dispatch = useDispatch();
@@ -24,11 +24,13 @@ function PokemonFavoritePage() {
           {favoritePokemons &&
             favoritePokemons.map((data, idx) => (
               <div key={idx} className='mb-2'>
-                <PokemonBanner
+                <PokemonCard
                   pokemon={data}
+                  index={Number(data?.url?.split('/')[6])}
                   onFavorite={() => handleFavoriteClick(data)}
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
                   isFavorite={true}
-                  index={Number(data.url.split('/')[6])}
                 />
               </div>
             ))}
