@@ -61,7 +61,9 @@ function PokemonDetailPage() {
         <div className='mb-4'>
           <PokemonBanner
             pokemon={pokemon}
-            onFavorite={handleFavoriteClick}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            onFavorite={() => handleFavoriteClick(pokemon)}
             index={Number(pokemon?.id)}
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
