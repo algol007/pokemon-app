@@ -167,8 +167,7 @@ function PokemonListPage() {
         </div>
 
         <div>
-          <h2 className='text-xl px-4'>Pokemons</h2>
-
+          <h1 className='text-xl px-4'>Pokemons</h1>
           {
             <InfiniteScroll
               dataLength={pokemons.length}

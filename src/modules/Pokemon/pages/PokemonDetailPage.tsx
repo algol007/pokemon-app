@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import PokemonBanner from '../components/PokemonBanner';
+import { PokemonBanner } from '../components';
 import pokemonService from '@/services/pokemonService';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Pokemon } from '../entity';
