@@ -11,6 +11,7 @@ import {
 } from '@/redux/reducers/pokemonReducer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { toast } from 'react-toastify';
+import { filterData } from '../constant';
 
 type Pagination = {
   limit: number;
@@ -142,48 +143,27 @@ function PokemonListPage() {
             </div>
           </div>
 
-          <div
-            className={`flex items-center mt-4 gap-4 justify-center ${
-              !isFilter && 'hidden'
-            }`}
-          >
-            <div>
-              <input
-                onChange={(e) => setFilterBy(e.target.value)}
-                value='pokemon'
-                id='pokemon'
-                type='radio'
-                className='mr-2 accent-primary'
-                name='filterBy'
-                checked={filterBy === 'pokemon'}
-              />
-              <label htmlFor='pokemon'>None</label>
-            </div>
-            <div>
-              <input
-                onChange={(e) => setFilterBy(e.target.value)}
-                value='ability'
-                id='ability'
-                type='radio'
-                className='mr-2 accent-primary'
-                name='filterBy'
-                checked={filterBy === 'ability'}
-              />
-              <label htmlFor='ability'>Abilities</label>
-            </div>
-            <div>
-              <input
-                onChange={(e) => setFilterBy(e.target.value)}
-                value='type'
-                id='type'
-                type='radio'
-                className='mr-2 accent-primary'
-                name='filterBy'
-                checked={filterBy === 'type'}
-              />
-              <label htmlFor='type'>Types</label>
-            </div>
-          </div>
+          {isFilter && (
+            <>
+              <div className='mt-4 mb-2 text-center'>Filter By:</div>
+              <div className='flex items-center gap-4 justify-center'>
+                {filterData.map((data, idx) => (
+                  <div key={idx}>
+                    <input
+                      onChange={(e) => setFilterBy(e.target.value)}
+                      value={data.value}
+                      id={data.value}
+                      type='radio'
+                      className='mr-2 accent-primary'
+                      name='filterBy'
+                      checked={filterBy === data.value}
+                    />
+                    <label htmlFor={data.value}>{data.name}</label>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div>
